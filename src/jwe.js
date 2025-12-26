@@ -46,7 +46,7 @@ function jweDecryption(pm) {
 	validateEnv(["MLE_DECRYPTION_KEY"], pm.environment);
 
 	return new Promise((resolve) => {
-		const responseBody = pm.request.body;
+		const responseBody = pm.response.body;
 		const decryptionKey = pm.environment.get("MLE_DECRYPTION_KEY");
 
 		const key = `-----BEGIN PRIVATE KEY-----\n${decryptionKey}\n-----END PRIVATE KEY-----`;
