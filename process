@@ -1,0 +1,2 @@
+// this file doesn't really do anything, but is required by browserify. 
+// see this issue: https://github.com/browserify/browserify/issues/1986
