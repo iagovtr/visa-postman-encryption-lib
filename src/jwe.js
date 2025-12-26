@@ -42,6 +42,30 @@ function jweEncryption(pm) {
 	});
 }
 
+function jweDecryption(pm) {
+	validateEnv(["MLE_DECRYPTION_KEY"], pm.environment);
+
+	return new Promise((resolve) => {
+		const responseBody = pm.request.body;
+		const decryptionKey = pm.environment.get("MLE_DECRYPTION_KEY");
+
+		const key = `-----BEGIN PRIVATE KEY-----\n${decryptionKey}\n-----END PRIVATE KEY-----`;
+		const keystore = jose.JWK.createKeyStore();
+		return (
+			keystore
+				.add(key, "pem")
+				// Decrypt payload and attach to response body
+				.then((privateKey) => {
+					return jose.JWE.createDecrypt(privateKey).decrypt(responseBody);
+				})
+				.then((decrypted) => {
+					resolve(decrypted.payload.toString());
+				})
+		);
+	});
+}
+
 module.exports = {
 	jweEncryption,
+	jweDecryption,
 };
