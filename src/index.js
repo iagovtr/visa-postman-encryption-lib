@@ -40,5 +40,5 @@ decryptRequest = async (pm) => {
 	if (["head", "options"].includes(pm.request.method.toLowerCase())) return;
 
 	const decryptedPayload = await jweDecryption(pm);
-	pm.request.body = decryptedPayload;
+	pm.environment.set("decryptedResponse", decryptedPayload);
 };

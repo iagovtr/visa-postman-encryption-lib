@@ -45,23 +45,35 @@ function jweEncryption(pm) {
 function jweDecryption(pm) {
 	validateEnv(["MLE_DECRYPTION_KEY"], pm.environment);
 
-	return new Promise((resolve) => {
-		const responseBody = pm.response.body;
+	return new Promise((resolve, reject) => {
+		const responseBody = pm.response.json().encData;
 		const decryptionKey = pm.environment.get("MLE_DECRYPTION_KEY");
 
-		const key = `-----BEGIN PRIVATE KEY-----\n${decryptionKey}\n-----END PRIVATE KEY-----`;
-		const keystore = jose.JWK.createKeyStore();
-		return (
-			keystore
-				.add(key, "pem")
-				// Decrypt payload and attach to response body
-				.then((privateKey) => {
-					return jose.JWE.createDecrypt(privateKey).decrypt(responseBody);
-				})
-				.then((decrypted) => {
-					resolve(decrypted.payload.toString());
-				})
-		);
+		try {
+			const key = `-----BEGIN PRIVATE KEY-----\n${decryptionKey}\n-----END PRIVATE KEY-----`;
+			console.log(key);
+			const keystore = jose.JWK.createKeyStore();
+			return (
+				keystore
+					.add(key, "pem")
+					// Decrypt payload and attach to response body
+					.then((privateKey) => {
+						console.log(privateKey);
+						return jose.JWE.createDecrypt(privateKey).decrypt(responseBody);
+					})
+					.then((decrypted) => {
+						console.log(decrypted.payload.toString());
+						resolve(decrypted.payload.toString());
+					})
+					.catch((error) => {
+						console.error("Decryption error:", error);
+						reject(error);
+					})
+			);
+		} catch(e) {
+			console.error("Decryption setup error:", e);
+			reject(e);
+		}
 	});
 }
 
